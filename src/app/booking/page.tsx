@@ -8,7 +8,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -70,6 +69,12 @@ export default function BookingPage() {
               className="text-sm font-medium hover:underline underline-offset-4"
             >
               OtiBersuara
+            </Link>
+            <Link
+              href="/internal-affairs"
+              className="text-sm font-medium hover:underline underline-offset-4"
+            >
+              Internal Affairs
             </Link>
           </nav>
           <div className="flex items-center gap-4">

@@ -63,6 +63,12 @@ export default function FeedbackPage() {
             >
               OtiBersuara
             </Link>
+            <Link
+              href="/internal-affairs"
+              className="text-sm font-medium hover:underline underline-offset-4"
+            >
+              Internal Affairs
+            </Link>
           </nav>
           <div className="flex items-center gap-4">
             <Avatar>

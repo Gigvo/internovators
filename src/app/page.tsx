@@ -40,6 +40,12 @@ export default function HomePage() {
             >
               OtiBersuara
             </Link>
+            <Link
+              href="/internal-affairs"
+              className="text-sm font-medium hover:underline underline-offset-4"
+            >
+              Internal Affairs
+            </Link>
           </nav>
           <div className="flex gap-4">
             <Link href="/signin">
