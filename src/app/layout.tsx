@@ -10,6 +10,9 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "OTI Connect",
+  icons: {
+    icon: "/icon/icon.png",
+  },
   description:
     "A comprehensive platform for managing divisions, events, meetings, and resources for OmahTI",
 };
