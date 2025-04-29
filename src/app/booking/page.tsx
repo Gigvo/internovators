@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
+// import Link from "next/link";
+// import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -20,10 +20,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckIcon, ClockIcon, XIcon } from "lucide-react";
+import { MainNavigation } from "@/components/layout/main-navigation";
 
 export default function BookingPage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -41,59 +42,7 @@ export default function BookingPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="backdrop-blur-md sticky top-0 w-full">
-        <div className="container flex h-16 items-center justify-between px-4 md:px-6">
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-            <Image
-              src={"/oticonnect-logo.png"}
-              alt="oti-connect"
-              width={250}
-              height={125}
-            ></Image>
-          </Link>
-          <nav className="hidden md:flex gap-6">
-            <Link
-              href="/"
-              className="text-sm font-medium hover:underline underline-offset-4"
-            >
-              Home
-            </Link>
-            <Link
-              href="/calendar"
-              className="text-sm font-medium hover:underline underline-offset-4"
-            >
-              Calendar
-            </Link>
-            <Link
-              href="/booking"
-              className="text-sm font-medium hover:underline underline-offset-4"
-            >
-              Room Booking
-            </Link>
-            <Link
-              href="/feedback"
-              className="text-sm font-medium hover:underline underline-offset-4"
-            >
-              OtiBersuara
-            </Link>
-            <Link
-              href="/internal-affairs"
-              className="text-sm font-medium hover:underline underline-offset-4"
-            >
-              Internal Affairs
-            </Link>
-          </nav>
-          <div className="flex items-center gap-4">
-            <Avatar>
-              <AvatarImage
-                src="/placeholder.svg?height=40&width=40"
-                alt="User"
-              />
-              <AvatarFallback>JD</AvatarFallback>
-            </Avatar>
-          </div>
-        </div>
-      </header>
+      <MainNavigation></MainNavigation>
       <main className="flex-1 container py-10 px-4 md:px-6">
         <div className="space-y-6">
           <div>

@@ -6,15 +6,16 @@ import {
   BookmarkIcon,
   BarChart3Icon,
 } from "lucide-react";
-import Image from "next/image";
+// import Image from "next/image";
+import { MainNavigation } from "@/components/layout/main-navigation";
 
 export default function HomePage() {
   return (
     <div
       className="flex flex-col min-h-screen bg-no-repeat bg-cover bg-center bg-[url('/background-oti.webp')]"
-      style={{ backgroundImage: "url('/background-oti.png')" }}
+      style={{ backgroundImage: "url('/background-oti.webp')" }}
     >
-      <header className="backdrop-blur-md sticky top-0 w-full ">
+      {/* <header className="backdrop-blur-md sticky top-0 w-full ">
         <div className="container flex flex-row h-16 items-center justify-between px-4 md:px-6 ">
           <Link
             href="/"
@@ -74,7 +75,9 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
-      </header>
+        
+      </header> */}
+      <MainNavigation></MainNavigation>
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 ">
           <div className="container px-6 md:px-12">

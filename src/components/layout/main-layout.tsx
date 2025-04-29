@@ -12,8 +12,8 @@ export default function MainLayout({
       <header className="border-b border-border bg-primary sticky top-0 z-40">
         <MainNavigation />
       </header>
-      <main className="flex-1 pb-16 md:pb-0">{children}</main>
-      <footer className="border-t border-border py-6 bg-primary hidden md:block">
+      <main className="flex-1">{children}</main>
+      <footer className="border-t border-border py-6 bg-primary">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-16 md:flex-row px-4 md:px-6">
           <p className="text-sm text-muted-foreground">
             © 2023 OrgManager. All rights reserved.

@@ -1,21 +1,39 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useState, useEffect, useRef } from "react";
 
 export function MainNavigation() {
   const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close mobile menu when route changes
+  // Close dropdown when clicking outside
   useEffect(() => {
-    setIsMobileMenuOpen(false);
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Close dropdown when route changes
+  useEffect(() => {
+    setIsDropdownOpen(false);
   }, [pathname]);
 
   const navItems = [
@@ -27,84 +45,82 @@ export function MainNavigation() {
   ];
 
   return (
-    <div className="container flex h-16 items-center justify-between px-4 md:px-6">
-      <Link href="/" className="flex items-center gap-2 font-bold text-xl z-10">
-        <span className="text-accent">OrgManager</span>
-      </Link>
+    <header className="backdrop-blur-md sticky top-0 w-full">
+      <div className="container flex flex-row h-16 items-center justify-between px-4 md:px-6">
+        <Link
+          href="/"
+          className="flex items-center gap-2 font-bold text-xl z-10"
+        >
+          <Image
+            src={"/oticonnect-logo.png"}
+            alt="oti-connect"
+            width={250}
+            height={125}
+          ></Image>
+        </Link>
 
-      {/* Desktop Navigation */}
-      <nav className="hidden md:flex gap-6">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              "text-sm font-medium transition-colors hover:text-accent",
-              pathname === item.href ? "text-accent" : "text-muted-foreground"
-            )}
-          >
-            {item.label}
-          </Link>
-        ))}
-      </nav>
-
-      {/* Mobile Navigation */}
-      <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-        <SheetTrigger asChild className="md:hidden">
-          <Button variant="ghost" size="icon" className="mr-2">
-            <Menu className="h-6 w-6" />
-            <span className="sr-only">Toggle menu</span>
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-[80%] sm:w-[350px] pt-10">
-          <div className="flex flex-col gap-6 mt-6">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "text-base font-medium transition-colors hover:text-accent flex items-center",
-                  pathname === item.href
-                    ? "text-accent"
-                    : "text-muted-foreground"
-                )}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
-        </SheetContent>
-      </Sheet>
-
-      {/* Alternative Mobile Navigation - Bottom Tab Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-primary border-t border-border md:hidden z-50">
-        <div className="grid grid-cols-5 h-16">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex gap-6">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center text-xs font-medium transition-colors",
+                "text-sm font-medium transition-colors hover:text-primary",
                 pathname === item.href
-                  ? "text-accent border-t-2 border-accent"
+                  ? "text-primary"
                   : "text-muted-foreground"
               )}
             >
               {item.label}
             </Link>
           ))}
+        </nav>
+
+        {/* Mobile Dropdown Navigation with Hamburger Icon */}
+        <div className="md:hidden relative" ref={dropdownRef}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-10 w-10 rounded-full hover:bg-background/10"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            aria-label="Menu"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+
+          {isDropdownOpen && (
+            <div className="absolute top-full right-0 mt-2 w-48 rounded-md bg-card border border-border shadow-lg z-50">
+              <div className="py-1">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "block px-4 py-3 text-sm transition-colors hover:bg-black",
+                      pathname === item.href
+                        ? "bg-black text-white font-medium"
+                        : "text-foreground"
+                    )}
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-4">
+          <Avatar>
+            <AvatarImage src="/placeholder.svg?height=40&width=40" alt="User" />
+            <AvatarFallback className="bg-background text-primary">
+              JD
+            </AvatarFallback>
+          </Avatar>
         </div>
       </div>
-
-      <div className="flex items-center gap-4">
-        <Avatar>
-          <AvatarImage src="/placeholder.svg?height=40&width=40" alt="User" />
-          <AvatarFallback className="bg-accent/20 text-accent">
-            JD
-          </AvatarFallback>
-        </Avatar>
-      </div>
-    </div>
+    </header>
   );
 }
