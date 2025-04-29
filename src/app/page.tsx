@@ -11,7 +11,7 @@ import Image from "next/image";
 export default function HomePage() {
   return (
     <div
-      className="flex flex-col min-h-screen bg-no-repeat bg-cover bg-center bg-[url('/background-oti.png')]"
+      className="flex flex-col min-h-screen bg-no-repeat bg-cover bg-center bg-[url('/background-oti.webp')]"
       style={{ backgroundImage: "url('/background-oti.png')" }}
     >
       <header className="backdrop-blur-md sticky top-0 w-full ">
