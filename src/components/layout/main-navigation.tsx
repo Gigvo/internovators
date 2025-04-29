@@ -45,7 +45,7 @@ export function MainNavigation() {
   ];
 
   return (
-    <header className="backdrop-blur-md sticky top-0 w-full">
+    <header className="backdrop-blur-md sticky top-0 w-full z-20">
       <div className="container flex flex-row h-16 items-center justify-between px-4 md:px-6">
         <Link
           href="/"
@@ -114,7 +114,10 @@ export function MainNavigation() {
 
         <div className="flex items-center gap-4">
           <Avatar>
-            <AvatarImage src="/placeholder.svg?height=40&width=40" alt="User" />
+            <AvatarImage
+              src="/person-placeholder.jpeg?height=40&width=40"
+              alt="User"
+            />
             <AvatarFallback className="bg-background text-primary">
               JD
             </AvatarFallback>
