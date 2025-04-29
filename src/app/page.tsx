@@ -84,12 +84,9 @@ export default function HomePage() {
             <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
               <div className="space-y-4">
                 <h1 className="text-white text-3xl font-bold tracking-tighter sm:text-5xl">
-                  Streamline Your Organization Management
+                  Streamline OmahTI, all in One Place
                 </h1>
-                <p className="max-w-[600px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                  A comprehensive platform for managing divisions, events,
-                  meetings, and resources for your organization.
-                </p>
+
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Link href="/signup">
                     <Button size="lg">Get Started</Button>
