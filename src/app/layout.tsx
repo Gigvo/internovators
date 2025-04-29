@@ -4,13 +4,14 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 // import Navbar from "@/components/navbar";
 import "react-day-picker/style.css";
+import Footer from "@/components/footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "OrgManager - Organization Management System",
+  title: "OTI Connect",
   description:
-    "A comprehensive platform for managing divisions, events, meetings, and resources for your organization.",
+    "A comprehensive platform for managing divisions, events, meetings, and resources for OmahTI",
 };
 
 export default function RootLayout({
@@ -29,6 +30,7 @@ export default function RootLayout({
         >
           {/* <Navbar></Navbar> */}
           {children}
+          <Footer />
         </ThemeProvider>
       </body>
     </html>
