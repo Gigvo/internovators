@@ -1,5 +1,7 @@
 "use client";
 
+import { api } from "@/lib/api";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -10,15 +12,29 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     // Simulate authentication
-    setTimeout(() => {
+    const form = new FormData(e.currentTarget as HTMLFormElement);
+    const email = form.get("email") as string;
+    const password = form.get("password") as string;
+
+    try {
+      const { token } = await api<{ token: string }>("/api/auth/signin", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
+      localStorage.setItem("jwt", token);
+      router.push("/dashboard");
+    } catch (err) {
+      console.error(err);
+      alert("Login failed: " + err.message);
+    } finally {
       setIsLoading(false);
-      // Redirect would happen here after successful auth
-    }, 1500);
+    }
   };
 
   return (
