@@ -17,21 +17,25 @@ export default function SignInPage() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate authentication
     const form = new FormData(e.currentTarget as HTMLFormElement);
     const email = form.get("email") as string;
     const password = form.get("password") as string;
 
     try {
-      const { token } = await api<{ token: string }>("/api/auth/signin", {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
+      const response = await api.post<{ token: string }>("/api/auth/signin", {
+        email,
+        password,
       });
+      const { token } = response.data; // Extract token from response.data
+
       localStorage.setItem("jwt", token);
       router.push("/dashboard");
     } catch (err) {
-      console.error(err);
-      alert("Login failed: " + err.message);
+      if (err instanceof Error) {
+        alert("Login failed: " + err.message);
+      } else if (err instanceof Response) {
+        alert("Login failed: " + String(err));
+      }
     } finally {
       setIsLoading(false);
     }
