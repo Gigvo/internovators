@@ -30,6 +30,13 @@ interface Task {
   updatedAt: string;
 }
 
+interface Report {
+  id: string;
+  division: string;
+  progress: string;
+  notes: string;
+}
+
 export default function InternalAffairsPage() {
   const [filter, setFilter] = useState("all");
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -37,6 +44,8 @@ export default function InternalAffairsPage() {
   const [newTaskDivision, setNewTaskDivision] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [userDivision, setUserDivision] = useState<string | null>(null); // Store user's division
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [reports, setReports] = useState<Report[]>([]);
   const router = useRouter();
 
   const fetchUserDivision = async () => {
@@ -100,6 +109,27 @@ export default function InternalAffairsPage() {
     }
   };
 
+  const fetchReports = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/reports`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+          },
+        }
+      );
+      if (response.ok) {
+        const data: Report[] = await response.json();
+        setReports(data);
+      } else {
+        console.error("Failed to fetch reports");
+      }
+    } catch (error) {
+      console.error("Error fetching reports:", error);
+    }
+  };
+
   useEffect(() => {
     fetchUserDivision();
   }, []);
@@ -115,6 +145,26 @@ export default function InternalAffairsPage() {
       fetchTasks();
     }
   }, [filter, userDivision]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("jwt");
+    if (token) {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => setIsAdmin(data.role === "Internal Affairs"))
+        .catch((err) => console.error("Error fetching user role:", err));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchReports();
+    }
+  }, [isAdmin]);
 
   if (userDivision === null) {
     return <p>Loading...</p>; // Show a loading state while fetching user division
@@ -178,6 +228,24 @@ export default function InternalAffairsPage() {
             )}
           </div>
         </div>
+        {isAdmin && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold">Admin Section</h2>
+            <div className="grid gap-6">
+              {reports.map((report) => (
+                <Card key={report.id}>
+                  <CardHeader>
+                    <CardTitle>{report.division}</CardTitle>
+                    <CardDescription>{report.progress}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p>{report.notes}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

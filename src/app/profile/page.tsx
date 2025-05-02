@@ -28,24 +28,25 @@ import { CalendarIcon, UserIcon, LogOutIcon, SettingsIcon } from "lucide-react";
 // import { MainNavigation } from "@/components/layout/main-navigation";
 
 interface UserProfile {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
-  phone: string;
-  availability: Record<
-    string,
-    { from: string; to: string; available: boolean }
-  >;
+  mainDivision: string;
+  roles: string[];
 }
 
 export default function ProfilePage() {
-  const [isLoading, setIsLoading] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchProfile = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/profile`
+        `${process.env.NEXT_PUBLIC_API_URL}/profile`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+          },
+        }
       );
       if (response.ok) {
         const data: UserProfile = await response.json();
@@ -70,6 +71,7 @@ export default function ProfilePage() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
           },
           body: JSON.stringify(profile),
         }
@@ -92,7 +94,7 @@ export default function ProfilePage() {
   }, []);
 
   if (!profile) {
-    return <p>Loading profile...</p>;
+    return <p>Loading...</p>;
   }
 
   return (
@@ -164,33 +166,18 @@ export default function ProfilePage() {
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleProfileUpdate} className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="first-name">First Name</Label>
-                          <Input
-                            id="first-name"
-                            value={profile.firstName}
-                            onChange={(e) =>
-                              setProfile({
-                                ...profile,
-                                firstName: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="last-name">Last Name</Label>
-                          <Input
-                            id="last-name"
-                            value={profile.lastName}
-                            onChange={(e) =>
-                              setProfile({
-                                ...profile,
-                                lastName: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Name</Label>
+                        <Input
+                          id="name"
+                          value={profile.name}
+                          onChange={(e) =>
+                            setProfile({
+                              ...profile,
+                              name: e.target.value,
+                            })
+                          }
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
@@ -204,14 +191,19 @@ export default function ProfilePage() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="phone">Phone Number</Label>
+                        <Label htmlFor="mainDivision">Main Division</Label>
                         <Input
-                          id="phone"
-                          type="tel"
-                          value={profile.phone}
-                          onChange={(e) =>
-                            setProfile({ ...profile, phone: e.target.value })
-                          }
+                          id="mainDivision"
+                          value={profile.mainDivision}
+                          disabled
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="roles">Roles</Label>
+                        <Input
+                          id="roles"
+                          value={profile.roles.join(", ")}
+                          disabled
                         />
                       </div>
                       <Button type="submit" disabled={isLoading}>
