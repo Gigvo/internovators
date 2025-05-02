@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-// import Link from "next/link";
-// import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,11 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircleIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-// import { MainNavigation } from "@/components/layout/main-navigation";
 
 export default function FeedbackPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +30,7 @@ export default function FeedbackPage() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ feedback }),
+          body: JSON.stringify({ feedback }), // Only send the feedback text
         }
       );
 
@@ -42,8 +38,7 @@ export default function FeedbackPage() {
         setIsSubmitted(true);
         setFeedback("");
       } else {
-        const errorData = await response.json();
-        console.error("Error submitting feedback:", errorData);
+        console.error("Failed to submit feedback");
       }
     } catch (error) {
       console.error("Error submitting feedback:", error);
@@ -54,7 +49,6 @@ export default function FeedbackPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      {/* <MainNavigation></MainNavigation> */}
       <main className="flex-1 container py-10 px-4 md:px-6">
         <div className="max-w-2xl mx-auto space-y-6">
           <div>

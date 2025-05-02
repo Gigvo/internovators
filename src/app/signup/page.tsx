@@ -28,17 +28,10 @@ export default function SignUpPage() {
     const name = form.get("name") as string;
     const email = form.get("email") as string;
     const password = form.get("password") as string;
-    const confirmPassword = form.get("confirm-password") as string;
-
-    if (password !== confirmPassword) {
-      alert("Passwords do not match");
-      setIsLoading(false);
-      return;
-    }
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/signup`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup`,
         {
           method: "POST",
           headers: {
@@ -49,14 +42,14 @@ export default function SignUpPage() {
       );
 
       if (response.ok) {
-        setStep(2); // Proceed to profile setup
+        console.log("Sign-up successful");
+        // Redirect or show success message
       } else {
         const errorData = await response.json();
-        alert("Sign-up failed: " + errorData.error);
+        console.error("Sign-up failed:", errorData);
       }
     } catch (error) {
       console.error("Error during sign-up:", error);
-      alert("An error occurred during sign-up");
     } finally {
       setIsLoading(false);
     }
