@@ -1,8 +1,7 @@
 "use client";
 
-import { api } from "@/lib/api";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,28 +16,39 @@ export default function SignInPage() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
     const form = new FormData(e.currentTarget as HTMLFormElement);
     const email = form.get("email") as string;
     const password = form.get("password") as string;
 
     try {
-      const response = await api.post<{ token: string }>("/api/auth/signin", {
-        email,
-        password,
-      });
-      const { token } = response.data; // Extract token from response.data
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/signin`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
-      localStorage.setItem("jwt", token);
-      router.push("/dashboard");
-    } catch (err) {
-      if (err instanceof Error) {
-        alert("Login failed: " + err.message);
-      } else if (err instanceof Response) {
-        alert("Login failed: " + String(err));
+      if (response.ok) {
+        const { token } = await response.json();
+        localStorage.setItem("jwt", token);
+        router.push("/dashboard");
+      } else {
+        console.error("Sign-in failed");
       }
+    } catch (error) {
+      console.error("Error during sign-in:", error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoogleSignIn = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
   };
 
   return (
@@ -87,7 +97,7 @@ export default function SignInPage() {
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => setIsLoading(true)}
+              onClick={handleGoogleSignIn}
               disabled={isLoading}
             >
               {isLoading ? "Connecting..." : "Continue with Google"}

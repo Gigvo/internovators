@@ -37,13 +37,16 @@ export default function SignUpPage() {
     }
 
     try {
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, email, password }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/signup`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name, email, password }),
+        }
+      );
 
       if (response.ok) {
         setStep(2); // Proceed to profile setup
@@ -57,6 +60,10 @@ export default function SignUpPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoogleSignUp = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
   };
 
   const handleProfileSetup = async (e: React.FormEvent) => {
@@ -121,7 +128,7 @@ export default function SignUpPage() {
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => setIsLoading(true)}
+                onClick={handleGoogleSignUp}
                 disabled={isLoading}
               >
                 {isLoading ? "Connecting..." : "Continue with Google"}

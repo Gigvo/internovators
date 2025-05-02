@@ -56,7 +56,9 @@ export default function InternalAffairsPage() {
   const fetchTasks = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/tasks?filter=${filter}`);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/tasks?filter=${filter}`
+      );
       if (response.ok) {
         const data: Task[] = await response.json();
         setTasks(data);
@@ -74,7 +76,7 @@ export default function InternalAffairsPage() {
     if (!newTaskTitle || !newTaskDivision) return;
 
     try {
-      const response = await fetch("/api/tasks", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tasks`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api } from "@/lib/api";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 interface Event {
@@ -11,13 +10,20 @@ interface Event {
 }
 
 export default function Dashboard() {
-  const [events, setEvents] = useState<Event[]>([]); // Use Event[] for the state
+  const [events, setEvents] = useState<Event[]>([]);
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await api.get<Event[]>("/events"); // Expect an array of Event
-        setEvents(response.data);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/events`
+        );
+        if (response.ok) {
+          const data: Event[] = await response.json();
+          setEvents(data);
+        } else {
+          console.error("Failed to fetch events");
+        }
       } catch (error) {
         console.error("Error fetching events:", error);
       }
@@ -31,7 +37,7 @@ export default function Dashboard() {
       <div className="p-4">
         <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
         <ul>
-          {events.map((event: Event) => (
+          {events.map((event) => (
             <li key={event.id} className="mb-2">
               {event.name || "Unnamed Event"}
             </li>

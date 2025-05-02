@@ -27,13 +27,16 @@ export default function FeedbackPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/feedback", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ feedback }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/feedback`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ feedback }),
+        }
+      );
 
       if (response.ok) {
         setIsSubmitted(true);

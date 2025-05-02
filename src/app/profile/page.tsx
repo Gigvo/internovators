@@ -44,7 +44,9 @@ export default function ProfilePage() {
 
   const fetchProfile = async () => {
     try {
-      const response = await fetch("/api/profile");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/profile`
+      );
       if (response.ok) {
         const data: UserProfile = await response.json();
         setProfile(data);
@@ -62,13 +64,16 @@ export default function ProfilePage() {
 
     setIsLoading(true);
     try {
-      const response = await fetch("/api/profile", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(profile),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/profile`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(profile),
+        }
+      );
 
       if (response.ok) {
         console.log("Profile updated successfully");

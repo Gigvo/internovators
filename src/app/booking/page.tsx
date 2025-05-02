@@ -48,13 +48,16 @@ export default function BookingPage() {
     };
 
     try {
-      const response = await fetch("/api/booking", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(bookingDetails),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/booking`, // Use the environment variable
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(bookingDetails),
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();

@@ -49,9 +49,9 @@ export default function CalendarPage() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `/api/calendar?date=${
+        `${process.env.NEXT_PUBLIC_API_URL}/calendar?date=${
           date.toISOString().split("T")[0]
-        }&type=${eventType}&division=${division}`
+        }&type=${eventType}&division=${division}` // Use the environment variable
       );
       if (response.ok) {
         const data: Event[] = await response.json();
