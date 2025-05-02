@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 //   BarChart3Icon,
 // } from "lucide-react";
 // import Image from "next/image";
-import { MainNavigation } from "@/components/layout/main-navigation";
+// import { MainNavigation } from "@/components/layout/main-navigation";
 
 export default function HomePage() {
   return (
@@ -77,7 +77,7 @@ export default function HomePage() {
         </div>
         
       </header> */}
-      <MainNavigation></MainNavigation>
+      {/* <MainNavigation></MainNavigation> */}
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 ">
           <div className="container px-6 md:px-12">

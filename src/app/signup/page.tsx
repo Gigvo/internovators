@@ -23,11 +23,40 @@ export default function SignUpPage() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate registration
-    setTimeout(() => {
+
+    const form = new FormData(e.currentTarget as HTMLFormElement);
+    const name = form.get("name") as string;
+    const email = form.get("email") as string;
+    const password = form.get("password") as string;
+    const confirmPassword = form.get("confirm-password") as string;
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
       setIsLoading(false);
-      setStep(2);
-    }, 1500);
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      if (response.ok) {
+        setStep(2); // Proceed to profile setup
+      } else {
+        const errorData = await response.json();
+        alert("Sign-up failed: " + errorData.error);
+      }
+    } catch (error) {
+      console.error("Error during sign-up:", error);
+      alert("An error occurred during sign-up");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleProfileSetup = async (e: React.FormEvent) => {
@@ -102,24 +131,27 @@ export default function SignUpPage() {
         ) : (
           <form onSubmit={handleProfileSetup} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="main-division">Main Division</Label>
+              <Label htmlFor="main-division">Technical Division</Label>
               <Select>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select your main division" />
+                  <SelectValue placeholder="Select your technical division" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="internal-affairs">
-                    Internal Affairs
+                  <SelectItem value="backend-dev">
+                    Backend Deveopment
                   </SelectItem>
-                  <SelectItem value="human-development">
-                    Human Development
-                  </SelectItem>
-                  <SelectItem value="resource-manager">
-                    Resource Manager
+                  <SelectItem value="data-science">Data Science</SelectItem>
+                  <SelectItem value="game-development">
+                    Game Development
                   </SelectItem>
                   <SelectItem value="frontend-dev">
                     Frontend Development
                   </SelectItem>
+                  <SelectItem value="competitive-programming">
+                    Competitive Programming
+                  </SelectItem>
+                  <SelectItem value="mobile-apps">Mobile Apps</SelectItem>
+                  <SelectItem value="ui-ux">UI/UX</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -140,6 +172,30 @@ export default function SignUpPage() {
                   </SelectItem>
                   <SelectItem value="resource-manager">
                     Resource Manager
+                  </SelectItem>
+                  <SelectItem value="external-affairs">
+                    External Affairs
+                  </SelectItem>
+                  <SelectItem value="information-technology">
+                    Information Technology
+                  </SelectItem>
+                  <SelectItem value="assignation-manager">
+                    Assignation Manager
+                  </SelectItem>
+                  <SelectItem value="skill-development">
+                    Skill Development
+                  </SelectItem>
+                  <SelectItem value="bussines-management">
+                    Bussines Management
+                  </SelectItem>
+                  <SelectItem value="research-and-competition">
+                    Research and Competition
+                  </SelectItem>
+                  <SelectItem value="content-and-design">
+                    Content and Design
+                  </SelectItem>
+                  <SelectItem value="project-manager">
+                    Projet Manager
                   </SelectItem>
                 </SelectContent>
               </Select>

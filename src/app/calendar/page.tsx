@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 // import Link from "next/link";
 // import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -23,14 +23,56 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CalendarIcon, ClockIcon, UsersIcon, MapPinIcon } from "lucide-react";
-import { MainNavigation } from "@/components/layout/main-navigation";
+// import { MainNavigation } from "@/components/layout/main-navigation";
+
+interface Event {
+  id: number;
+  date: string;
+  type: string;
+  title: string;
+  time: string;
+  location: string;
+  audience: string;
+  description?: string;
+}
 
 export default function CalendarPage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [eventType, setEventType] = useState<string>("all");
+  const [division, setDivision] = useState<string>("all");
+  const [events, setEvents] = useState<Event[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const fetchEvents = async () => {
+    if (!date) return;
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `/api/calendar?date=${
+          date.toISOString().split("T")[0]
+        }&type=${eventType}&division=${division}`
+      );
+      if (response.ok) {
+        const data: Event[] = await response.json();
+        setEvents(data);
+      } else {
+        console.error("Failed to fetch events");
+      }
+    } catch (error) {
+      console.error("Error fetching events:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+  }, [date, eventType, division]);
 
   return (
     <div className="flex min-h-screen flex-col">
-      <MainNavigation></MainNavigation>
+      {/* <MainNavigation></MainNavigation> */}
       <main className="flex-1 container py-10 px-4 md:px-6">
         <div className="space-y-6">
           <div>
@@ -77,17 +119,18 @@ export default function CalendarPage() {
                         <label className="text-sm font-medium leading-none">
                           Event Type
                         </label>
-                        <Select defaultValue="all">
+                        <Select
+                          defaultValue="all"
+                          onValueChange={(value) => setEventType(value)}
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Select event type" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="all">All Events</SelectItem>
-                            <SelectItem value="meetings">Meetings</SelectItem>
-                            <SelectItem value="trainings">Trainings</SelectItem>
-                            <SelectItem value="events">
-                              Special Events
-                            </SelectItem>
+                            <SelectItem value="mandatory">Mandatory</SelectItem>
+                            <SelectItem value="division">Division</SelectItem>
+                            <SelectItem value="training">Training</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -95,7 +138,10 @@ export default function CalendarPage() {
                         <label className="text-sm font-medium leading-none">
                           Division
                         </label>
-                        <Select defaultValue="all">
+                        <Select
+                          defaultValue="all"
+                          onValueChange={(value) => setDivision(value)}
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Select division" />
                           </SelectTrigger>
@@ -142,109 +188,44 @@ export default function CalendarPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-6">
-                      <div className="space-y-4">
-                        <h3 className="font-medium">Mandatory Events</h3>
-                        <div className="rounded-lg border p-4 bg-primary/5">
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <h4 className="font-semibold">
-                                Quarterly Organization Meeting
-                              </h4>
-                              <Badge>Mandatory</Badge>
+                    {isLoading ? (
+                      <p>Loading events...</p>
+                    ) : events.length > 0 ? (
+                      <div className="space-y-6">
+                        {events.map((event) => (
+                          <div
+                            key={event.id}
+                            className="rounded-lg border p-4 bg-primary/5"
+                          >
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <h4 className="font-semibold">{event.title}</h4>
+                                <Badge>{event.type}</Badge>
+                              </div>
+                              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                                <ClockIcon className="mr-1 h-4 w-4" />
+                                <span>{event.time}</span>
+                              </div>
+                              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                                <MapPinIcon className="mr-1 h-4 w-4" />
+                                <span>{event.location}</span>
+                              </div>
+                              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                                <UsersIcon className="mr-1 h-4 w-4" />
+                                <span>{event.audience}</span>
+                              </div>
+                              {event.description && (
+                                <p className="text-sm mt-2">
+                                  {event.description}
+                                </p>
+                              )}
                             </div>
-                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                              <ClockIcon className="mr-1 h-4 w-4" />
-                              <span>10:00 AM - 12:00 PM</span>
-                            </div>
-                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                              <MapPinIcon className="mr-1 h-4 w-4" />
-                              <span>Conference Room</span>
-                            </div>
-                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                              <UsersIcon className="mr-1 h-4 w-4" />
-                              <span>All Members</span>
-                            </div>
-                            <p className="text-sm mt-2">
-                              Review of quarterly goals and achievements. All
-                              division heads to present progress reports.
-                            </p>
                           </div>
-                        </div>
+                        ))}
                       </div>
-                      <div className="space-y-4">
-                        <h3 className="font-medium">Division Meetings</h3>
-                        <div className="rounded-lg border p-4">
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <h4 className="font-semibold">
-                                Frontend Development Weekly Sync
-                              </h4>
-                              <Badge variant="outline">Division</Badge>
-                            </div>
-                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                              <ClockIcon className="mr-1 h-4 w-4" />
-                              <span>2:00 PM - 3:00 PM</span>
-                            </div>
-                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                              <MapPinIcon className="mr-1 h-4 w-4" />
-                              <span>Meeting Room 1</span>
-                            </div>
-                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                              <UsersIcon className="mr-1 h-4 w-4" />
-                              <span>Frontend Development Team</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="rounded-lg border p-4">
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <h4 className="font-semibold">
-                                Resource Manager Planning
-                              </h4>
-                              <Badge variant="outline">Division</Badge>
-                            </div>
-                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                              <ClockIcon className="mr-1 h-4 w-4" />
-                              <span>4:00 PM - 5:00 PM</span>
-                            </div>
-                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                              <MapPinIcon className="mr-1 h-4 w-4" />
-                              <span>Meeting Room 2</span>
-                            </div>
-                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                              <UsersIcon className="mr-1 h-4 w-4" />
-                              <span>Resource Manager Team</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="space-y-4">
-                        <h3 className="font-medium">Training Sessions</h3>
-                        <div className="rounded-lg border p-4">
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <h4 className="font-semibold">
-                                New Member Orientation
-                              </h4>
-                              <Badge variant="outline">Training</Badge>
-                            </div>
-                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                              <ClockIcon className="mr-1 h-4 w-4" />
-                              <span>9:00 AM - 11:00 AM</span>
-                            </div>
-                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                              <MapPinIcon className="mr-1 h-4 w-4" />
-                              <span>Training Room</span>
-                            </div>
-                            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                              <UsersIcon className="mr-1 h-4 w-4" />
-                              <span>New Members, Human Development</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    ) : (
+                      <p>No events found for the selected date.</p>
+                    )}
                   </CardContent>
                 </Card>
               </div>

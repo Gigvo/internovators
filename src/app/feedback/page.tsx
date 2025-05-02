@@ -15,7 +15,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircleIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { MainNavigation } from "@/components/layout/main-navigation";
+// import { MainNavigation } from "@/components/layout/main-navigation";
 
 export default function FeedbackPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -25,17 +25,33 @@ export default function FeedbackPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate submission
-    setTimeout(() => {
+
+    try {
+      const response = await fetch("/api/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ feedback }),
+      });
+
+      if (response.ok) {
+        setIsSubmitted(true);
+        setFeedback("");
+      } else {
+        const errorData = await response.json();
+        console.error("Error submitting feedback:", errorData);
+      }
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+    } finally {
       setIsLoading(false);
-      setIsSubmitted(true);
-      setFeedback("");
-    }, 1500);
+    }
   };
 
   return (
     <div className="flex min-h-screen flex-col">
-      <MainNavigation></MainNavigation>
+      {/* <MainNavigation></MainNavigation> */}
       <main className="flex-1 container py-10 px-4 md:px-6">
         <div className="max-w-2xl mx-auto space-y-6">
           <div>

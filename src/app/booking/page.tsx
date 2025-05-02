@@ -24,25 +24,57 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckIcon, ClockIcon, XIcon } from "lucide-react";
-import { MainNavigation } from "@/components/layout/main-navigation";
 
 export default function BookingPage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [room, setRoom] = useState<string | undefined>();
+  const [startTime, setStartTime] = useState<string | undefined>();
+  const [endTime, setEndTime] = useState<string | undefined>();
+  const [purpose, setPurpose] = useState<string | undefined>();
+  const [description, setDescription] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate booking
-    setTimeout(() => {
+
+    const bookingDetails = {
+      date,
+      room,
+      startTime,
+      endTime,
+      purpose,
+      description,
+    };
+
+    try {
+      const response = await fetch("/api/booking", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookingDetails),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Booking successful:", data);
+        // Show success message or redirect
+      } else {
+        const errorData = await response.json();
+        console.error("Booking failed:", errorData);
+        // Show error message
+      }
+    } catch (error) {
+      console.error("Error submitting booking:", error);
+      // Show error message
+    } finally {
       setIsLoading(false);
-      // Show success message or redirect
-    }, 1500);
+    }
   };
 
   return (
     <div className="flex min-h-screen flex-col">
-      <MainNavigation></MainNavigation>
       <main className="flex-1 container py-10 px-4 md:px-6">
         <div className="space-y-6">
           <div>
@@ -88,7 +120,7 @@ export default function BookingPage() {
                         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                           Room
                         </label>
-                        <Select>
+                        <Select onValueChange={setRoom}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a room" />
                           </SelectTrigger>
@@ -113,7 +145,7 @@ export default function BookingPage() {
                           <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                             Start Time
                           </label>
-                          <Select>
+                          <Select onValueChange={setStartTime}>
                             <SelectTrigger>
                               <SelectValue placeholder="Select start time" />
                             </SelectTrigger>
@@ -133,7 +165,7 @@ export default function BookingPage() {
                           <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                             End Time
                           </label>
-                          <Select>
+                          <Select onValueChange={setEndTime}>
                             <SelectTrigger>
                               <SelectValue placeholder="Select end time" />
                             </SelectTrigger>
@@ -154,7 +186,7 @@ export default function BookingPage() {
                         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                           Purpose
                         </label>
-                        <Select>
+                        <Select onValueChange={setPurpose}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select purpose" />
                           </SelectTrigger>
@@ -177,7 +209,11 @@ export default function BookingPage() {
                         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                           Description
                         </label>
-                        <Textarea placeholder="Provide details about your booking" />
+                        <Textarea
+                          placeholder="Provide details about your booking"
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                        />
                       </div>
                       <Button
                         type="submit"

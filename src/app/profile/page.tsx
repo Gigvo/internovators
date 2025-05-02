@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 // import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -25,23 +25,74 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { CalendarIcon, UserIcon, LogOutIcon, SettingsIcon } from "lucide-react";
-import { MainNavigation } from "@/components/layout/main-navigation";
+// import { MainNavigation } from "@/components/layout/main-navigation";
+
+interface UserProfile {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  availability: Record<
+    string,
+    { from: string; to: string; available: boolean }
+  >;
+}
 
 export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch("/api/profile");
+      if (response.ok) {
+        const data: UserProfile = await response.json();
+        setProfile(data);
+      } else {
+        console.error("Failed to fetch profile");
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!profile) return;
+
     setIsLoading(true);
-    // Simulate profile update
-    setTimeout(() => {
+    try {
+      const response = await fetch("/api/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(profile),
+      });
+
+      if (response.ok) {
+        console.log("Profile updated successfully");
+      } else {
+        console.error("Failed to update profile");
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  if (!profile) {
+    return <p>Loading profile...</p>;
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
-      <MainNavigation></MainNavigation>
+      {/* <MainNavigation></MainNavigation> */}
       <main className="flex-1 container py-10 px-4 md:px-6">
         <div className="grid gap-8 md:grid-cols-[1fr_3fr]">
           <div className="space-y-6">
@@ -111,11 +162,29 @@ export default function ProfilePage() {
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="first-name">First Name</Label>
-                          <Input id="first-name" defaultValue="John" />
+                          <Input
+                            id="first-name"
+                            value={profile.firstName}
+                            onChange={(e) =>
+                              setProfile({
+                                ...profile,
+                                firstName: e.target.value,
+                              })
+                            }
+                          />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="last-name">Last Name</Label>
-                          <Input id="last-name" defaultValue="Doe" />
+                          <Input
+                            id="last-name"
+                            value={profile.lastName}
+                            onChange={(e) =>
+                              setProfile({
+                                ...profile,
+                                lastName: e.target.value,
+                              })
+                            }
+                          />
                         </div>
                       </div>
                       <div className="space-y-2">
@@ -123,7 +192,10 @@ export default function ProfilePage() {
                         <Input
                           id="email"
                           type="email"
-                          defaultValue="john.doe@example.com"
+                          value={profile.email}
+                          onChange={(e) =>
+                            setProfile({ ...profile, email: e.target.value })
+                          }
                         />
                       </div>
                       <div className="space-y-2">
@@ -131,7 +203,10 @@ export default function ProfilePage() {
                         <Input
                           id="phone"
                           type="tel"
-                          defaultValue="+1234567890"
+                          value={profile.phone}
+                          onChange={(e) =>
+                            setProfile({ ...profile, phone: e.target.value })
+                          }
                         />
                       </div>
                       <Button type="submit" disabled={isLoading}>
