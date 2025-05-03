@@ -10,7 +10,7 @@ import React, {
 import { api } from "@/lib/api";
 import type { AxiosError } from "axios";
 
-// 1. Define exactly what your “User” shape is
+// 1. Define exactly what your "User" shape is
 export interface User {
   id: string;
   name: string;
@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Fetch profile if token exists
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("jwt");
     if (token) {
       fetchUser().finally(() => setLoading(false));
     } else {
@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const axiosError = err as AxiosError;
         // If the token is bad, clear it
         if (axiosError.response?.status === 401) {
-          localStorage.removeItem("token");
+          localStorage.removeItem("jwt");
         }
       }
       setUser(null);
@@ -61,14 +61,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Store token and then load current user
   const login = async (token: string): Promise<void> => {
-    localStorage.setItem("token", token);
+    localStorage.setItem("jwt", token);
     setLoading(true);
     await fetchUser();
     setLoading(false);
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("jwt");
     setUser(null);
   };
 
