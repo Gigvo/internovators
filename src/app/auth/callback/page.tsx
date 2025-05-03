@@ -32,24 +32,42 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
+        // Get token from URL query parameters
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        
+        if (!token) {
+          setError("No authentication token found");
+          setIsLoading(false);
+          return;
+        }
+
+        // Store the token
+        localStorage.setItem("jwt", token);
+
+        // Fetch user profile to check if setup is needed
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/google/callback${window.location.search}`
+          `${process.env.NEXT_PUBLIC_API_URL}/users/profile`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
-        const data = await response.json();
 
         if (response.ok) {
-          localStorage.setItem("jwt", data.token);
-          // Check if user needs profile setup
-          if (data.needsProfileSetup) {
+          const userData = await response.json();
+          // Check if user needs profile setup (e.g., if mainDivision is not set)
+          if (!userData.mainDivision) {
             setShowProfileSetup(true);
           } else {
             router.push("/");
           }
         } else {
-          setError(data.message || "Authentication failed");
+          setError("Failed to fetch user profile");
         }
       } catch (err) {
-        setError("An error occurred during authentication " + err);
+        setError("An error occurred during authentication: " + err);
       } finally {
         setIsLoading(false);
       }
