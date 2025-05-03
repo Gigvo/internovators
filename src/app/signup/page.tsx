@@ -120,8 +120,8 @@ export default function SignUpPage() {
       const data = await response.json();
 
       if (response.ok) {
-        // Redirect to dashboard
-        router.push("/dashboard");
+        // Redirect to signin page after successful profile setup
+        router.push("/signin");
       } else {
         setError(data.message || "Profile setup failed. Please try again.");
       }
