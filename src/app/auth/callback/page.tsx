@@ -38,7 +38,7 @@ export default function AuthCallback() {
         const data = await response.json();
 
         if (response.ok) {
-          localStorage.setItem("token", data.token);
+          localStorage.setItem("jwt", data.token);
           // Check if user needs profile setup
           if (data.needsProfileSetup) {
             setShowProfileSetup(true);
@@ -64,14 +64,14 @@ export default function AuthCallback() {
     setError(null);
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("jwt");
       if (!token) {
         throw new Error("No authentication token found");
       }
 
       // Update user profile with division selections
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/users/profile`,
+        `${process.env.NEXT_PUBLIC_API_URL}/profile`,
         {
           method: "PUT",
           headers: {

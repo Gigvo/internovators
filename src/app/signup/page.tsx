@@ -103,7 +103,7 @@ export default function SignUpPage() {
 
       if (response.ok) {
         // Store the token
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("jwt", data.token);
         // Move to next step
         setStep(2);
       } else {
@@ -129,14 +129,14 @@ export default function SignUpPage() {
     setError(null);
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("jwt");
       if (!token) {
         throw new Error("No authentication token found");
       }
 
       // Update user profile with division selections
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/users/profile`,
+        `${process.env.NEXT_PUBLIC_API_URL}/profile`,
         {
           method: "PUT",
           headers: {
@@ -156,8 +156,8 @@ export default function SignUpPage() {
       const data = await response.json();
 
       if (response.ok) {
-        // Redirect to signin page after successful profile setup
-        router.push("/signin");
+        // Redirect to home page after successful profile setup
+        router.push("/");
       } else {
         setError(data.message || "Profile setup failed. Please try again.");
       }
