@@ -33,6 +33,19 @@ export default function SignUpPage() {
     weekend: false,
   });
 
+  // Add email validation function
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  // Add password validation function
+  const validatePassword = (password: string) => {
+    // At least 6 characters, 1 uppercase, 1 lowercase, 1 number
+    const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+    return re.test(password);
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -45,6 +58,27 @@ export default function SignUpPage() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirm-password") as string;
+
+    // Validate name
+    if (!name || name.trim().length < 2) {
+      setError("Name must be at least 2 characters long");
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate email
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address");
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate password
+    if (!validatePassword(password)) {
+      setError("Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, and one number");
+      setIsLoading(false);
+      return;
+    }
 
     // Validate passwords match
     if (password !== confirmPassword) {
@@ -73,7 +107,9 @@ export default function SignUpPage() {
         // Move to next step
         setStep(2);
       } else {
-        setError(data.message || "Sign up failed. Please try again.");
+        // Show the specific error message from the backend
+        setError(data.message || data.error || "Sign up failed. Please try again.");
+        console.error("Registration failed:", data);
       }
     } catch (error) {
       setError("An error occurred. Please try again.");
@@ -166,7 +202,7 @@ export default function SignUpPage() {
               <TabsTrigger value="email">Email</TabsTrigger>
               <TabsTrigger value="google">Google</TabsTrigger>
             </TabsList>
-            <TabsContent value="email" className="space-y-4">
+            <TabsContent value="email">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name</Label>
@@ -175,6 +211,7 @@ export default function SignUpPage() {
                     name="name" 
                     placeholder="John Doe" 
                     required 
+                    minLength={2}
                   />
                 </div>
                 <div className="space-y-2">
@@ -194,7 +231,11 @@ export default function SignUpPage() {
                     name="password" 
                     type="password" 
                     required 
+                    minLength={6}
                   />
+                  <p className="text-xs text-gray-500">
+                    Must be at least 6 characters with 1 uppercase, 1 lowercase, and 1 number
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirm-password">Confirm Password</Label>
@@ -203,6 +244,7 @@ export default function SignUpPage() {
                     name="confirm-password" 
                     type="password" 
                     required 
+                    minLength={6}
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
@@ -210,7 +252,7 @@ export default function SignUpPage() {
                 </Button>
               </form>
             </TabsContent>
-            <TabsContent value="google" className="space-y-4">
+            <TabsContent value="google">
               <Button
                 variant="outline"
                 className="w-full"
