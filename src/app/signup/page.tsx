@@ -111,7 +111,7 @@ export default function SignUpPage() {
             mainDivision,
             managerialDivision: managerialDivision || undefined,
             availableTimes: Object.entries(availableTimes)
-              .filter(([_, isAvailable]) => isAvailable)
+              .filter(([, isAvailable]) => isAvailable)
               .map(([day]) => day),
           }),
         }
