@@ -125,7 +125,7 @@ export default function RootLayout({
                         onClick={handleGoogleSignIn}
                         className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition"
                       >
-                        Sign In with Google
+                        Sign In
                       </button>
                       <Link
                         href="/signup"
