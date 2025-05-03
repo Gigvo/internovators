@@ -36,7 +36,7 @@ export default function SignInPage() {
       if (response.ok) {
         const { token } = await response.json();
         localStorage.setItem("jwt", token);
-        router.push("/signin");
+        router.push("/");
       } else {
         console.error("Sign-in failed");
       }
