@@ -12,7 +12,7 @@ export default function ProtectedRoute({
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/login");
+      router.push("/signin");
     }
   }, [user, loading]);
 
