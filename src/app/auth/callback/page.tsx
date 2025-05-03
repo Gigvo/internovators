@@ -22,8 +22,8 @@ export default function AuthCallback() {
         } else {
           setError(data.message || "Authentication failed");
         }
-      } catch (err) {
-        setError("An error occurred during authentication");
+      } catch(err) {
+        setError("An error occurred during authentication " + err);
       } finally {
         setIsLoading(false);
       }
