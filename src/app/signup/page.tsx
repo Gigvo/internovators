@@ -15,19 +15,43 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(1);
+  const [error, setError] = useState<string | null>(null);
+  const [mainDivision, setMainDivision] = useState<string>("");
+  const [managerialDivision, setManagerialDivision] = useState<string>("");
+  const [availableTimes, setAvailableTimes] = useState<Record<string, boolean>>({
+    monday: false,
+    tuesday: false,
+    wednesday: false,
+    thursday: false,
+    friday: false,
+    weekend: false,
+  });
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
-    const form = new FormData(e.currentTarget as HTMLFormElement);
-    const name = form.get("name") as string;
-    const email = form.get("email") as string;
-    const password = form.get("password") as string;
+    const form = e.currentTarget as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirm-password") as string;
+
+    // Validate passwords match
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -41,14 +65,18 @@ export default function SignUpPage() {
         }
       );
 
+      const data = await response.json();
+
       if (response.ok) {
-        console.log("Sign-up successful");
-        // Redirect or show success message
+        // Store the token
+        localStorage.setItem("token", data.token);
+        // Move to next step
+        setStep(2);
       } else {
-        const errorData = await response.json();
-        console.error("Sign-up failed:", errorData);
+        setError(data.message || "Sign up failed. Please try again.");
       }
     } catch (error) {
+      setError("An error occurred. Please try again.");
       console.error("Error during sign-up:", error);
     } finally {
       setIsLoading(false);
@@ -62,11 +90,54 @@ export default function SignUpPage() {
   const handleProfileSetup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate profile setup
-    setTimeout(() => {
+    setError(null);
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
+      // Update user profile with division selections
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/users/profile`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            mainDivision,
+            managerialDivision: managerialDivision || undefined,
+            availableTimes: Object.entries(availableTimes)
+              .filter(([_, isAvailable]) => isAvailable)
+              .map(([day]) => day),
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Redirect to dashboard
+        router.push("/dashboard");
+      } else {
+        setError(data.message || "Profile setup failed. Please try again.");
+      }
+    } catch (error) {
+      setError("An error occurred. Please try again.");
+      console.error("Error during profile setup:", error);
+    } finally {
       setIsLoading(false);
-      // Redirect would happen here after successful profile setup
-    }, 1500);
+    }
+  };
+
+  const handleCheckboxChange = (day: string) => {
+    setAvailableTimes((prev) => ({
+      ...prev,
+      [day]: !prev[day],
+    }));
   };
 
   return (
@@ -83,6 +154,12 @@ export default function SignUpPage() {
           </p>
         </div>
 
+        {error && (
+          <div className="rounded-md bg-red-50 p-4 text-sm text-red-500">
+            {error}
+          </div>
+        )}
+
         {step === 1 ? (
           <Tabs defaultValue="email" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
@@ -93,12 +170,18 @@ export default function SignUpPage() {
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" placeholder="John Doe" required />
+                  <Input 
+                    id="name" 
+                    name="name" 
+                    placeholder="John Doe" 
+                    required 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
+                    name="email"
                     type="email"
                     placeholder="m@example.com"
                     required
@@ -106,11 +189,21 @@ export default function SignUpPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
-                  <Input id="password" type="password" required />
+                  <Input 
+                    id="password" 
+                    name="password" 
+                    type="password" 
+                    required 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirm-password">Confirm Password</Label>
-                  <Input id="confirm-password" type="password" required />
+                  <Input 
+                    id="confirm-password" 
+                    name="confirm-password" 
+                    type="password" 
+                    required 
+                  />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Creating account..." : "Sign Up"}
@@ -132,26 +225,19 @@ export default function SignUpPage() {
           <form onSubmit={handleProfileSetup} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="main-division">Technical Division</Label>
-              <Select>
+              <Select value={mainDivision} onValueChange={setMainDivision} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select your technical division" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="backend-dev">
-                    Backend Deveopment
-                  </SelectItem>
-                  <SelectItem value="data-science">Data Science</SelectItem>
-                  <SelectItem value="game-development">
-                    Game Development
-                  </SelectItem>
-                  <SelectItem value="frontend-dev">
-                    Frontend Development
-                  </SelectItem>
-                  <SelectItem value="competitive-programming">
-                    Competitive Programming
-                  </SelectItem>
-                  <SelectItem value="mobile-apps">Mobile Apps</SelectItem>
+                  <SelectItem value="data-science-and-ai">Data Science and AI</SelectItem>
+                  <SelectItem value="cybersecurity">Cybersecurity</SelectItem>
                   <SelectItem value="ui-ux">UI/UX</SelectItem>
+                  <SelectItem value="frontend">Frontend</SelectItem>
+                  <SelectItem value="backend">Backend</SelectItem>
+                  <SelectItem value="mobile-apps">Mobile Apps</SelectItem>
+                  <SelectItem value="competitive-programming">Competitive Programming</SelectItem>
+                  <SelectItem value="game-development">Game Development</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -159,44 +245,17 @@ export default function SignUpPage() {
               <Label htmlFor="managerial-division">
                 Managerial Division (Optional)
               </Label>
-              <Select>
+              <Select value={managerialDivision} onValueChange={setManagerialDivision}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select your managerial division" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="internal-affairs">
-                    Internal Affairs
-                  </SelectItem>
-                  <SelectItem value="human-development">
-                    Human Development
-                  </SelectItem>
-                  <SelectItem value="resource-manager">
-                    Resource Manager
-                  </SelectItem>
-                  <SelectItem value="external-affairs">
-                    External Affairs
-                  </SelectItem>
-                  <SelectItem value="information-technology">
-                    Information Technology
-                  </SelectItem>
-                  <SelectItem value="assignation-manager">
-                    Assignation Manager
-                  </SelectItem>
-                  <SelectItem value="skill-development">
-                    Skill Development
-                  </SelectItem>
-                  <SelectItem value="bussines-management">
-                    Bussines Management
-                  </SelectItem>
-                  <SelectItem value="research-and-competition">
-                    Research and Competition
-                  </SelectItem>
-                  <SelectItem value="content-and-design">
-                    Content and Design
-                  </SelectItem>
-                  <SelectItem value="project-manager">
-                    Projet Manager
-                  </SelectItem>
+                  <SelectItem value="content-and-design">Content and Design</SelectItem>
+                  <SelectItem value="resource-manager">Resource Manager</SelectItem>
+                  <SelectItem value="external-affairs">External Affairs</SelectItem>
+                  <SelectItem value="research-and-competition">Research and Competition</SelectItem>
+                  <SelectItem value="human-development">Human Development</SelectItem>
+                  <SelectItem value="business-management">Business Management</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -204,27 +263,51 @@ export default function SignUpPage() {
               <Label>Weekly Availability</Label>
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="monday" />
+                  <Checkbox 
+                    id="monday" 
+                    checked={availableTimes.monday}
+                    onCheckedChange={() => handleCheckboxChange("monday")}
+                  />
                   <Label htmlFor="monday">Monday</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="tuesday" />
+                  <Checkbox 
+                    id="tuesday" 
+                    checked={availableTimes.tuesday}
+                    onCheckedChange={() => handleCheckboxChange("tuesday")}
+                  />
                   <Label htmlFor="tuesday">Tuesday</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="wednesday" />
+                  <Checkbox 
+                    id="wednesday" 
+                    checked={availableTimes.wednesday}
+                    onCheckedChange={() => handleCheckboxChange("wednesday")}
+                  />
                   <Label htmlFor="wednesday">Wednesday</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="thursday" />
+                  <Checkbox 
+                    id="thursday" 
+                    checked={availableTimes.thursday}
+                    onCheckedChange={() => handleCheckboxChange("thursday")}
+                  />
                   <Label htmlFor="thursday">Thursday</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="friday" />
+                  <Checkbox 
+                    id="friday" 
+                    checked={availableTimes.friday}
+                    onCheckedChange={() => handleCheckboxChange("friday")}
+                  />
                   <Label htmlFor="friday">Friday</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="weekend" />
+                  <Checkbox 
+                    id="weekend" 
+                    checked={availableTimes.weekend}
+                    onCheckedChange={() => handleCheckboxChange("weekend")}
+                  />
                   <Label htmlFor="weekend">Weekend</Label>
                 </div>
               </div>
