@@ -47,7 +47,7 @@ export default function AuthCallback() {
 
         // Fetch user profile to check if setup is needed
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/users/profile`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/users/profile`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
