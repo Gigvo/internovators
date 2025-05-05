@@ -224,7 +224,7 @@ export default function BookingPage() {
                               Meeting Room 1
                             </SelectItem>
                             <SelectItem value="meeting-room-2">
-                              Meeting Room 2
+                              Inventory Room
                             </SelectItem>
                             <SelectItem value="training-room">
                               Training Room
